@@ -26,6 +26,25 @@ namespace wifi
     namespace
     {
 
+        std::string crgbToString(CRGB color)
+        {
+            char buffer[8];
+            sprintf(buffer, "#%02X%02X%02X", color.r, color.g, color.b);
+            return buffer;
+        }
+
+        std::string getStatus()
+        {
+            StaticJsonDocument<200> doc;
+            doc["c"] = "s";
+            doc["animation"] = toString(leds::animation);
+            doc["solidColor"] = crgbToString(leds::solidColor);
+
+            std::string response;
+            serializeJson(doc, response);
+            return response;
+        }
+
         void handleWebSocketMessage(void *arg, uint8_t *data, size_t len, AsyncWebSocketClient *client)
         {
             AwsFrameInfo *info = (AwsFrameInfo *)arg;
@@ -80,10 +99,11 @@ namespace wifi
 
                     leds::animation = parseAnimation(doc["a"].as<std::string>());
                     Serial.printf("Set animation to %s\n", doc["a"].as<std::string>().c_str());
+                    ws.textAll(getStatus().c_str());
                 }
                 else if (command == "s")
                 {
-                   if (!doc.containsKey("d") || !doc["d"].is<uint16_t>())
+                    if (!doc.containsKey("d") || !doc["d"].is<uint16_t>())
                     {
                         if (DEBUG)
                             Serial.println("No time found");
@@ -105,6 +125,11 @@ namespace wifi
                     }
 
                     leds::solidColor = CRGB(doc["r"].as<uint8_t>(), doc["g"].as<uint8_t>(), doc["b"].as<uint8_t>());
+                    ws.textAll(getStatus().c_str());
+                }
+                else if (command == "_")
+                {
+                    ws.textAll(getStatus().c_str());
                 }
             }
         }
