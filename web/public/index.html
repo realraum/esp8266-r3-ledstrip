@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>r3ledstripctrl</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+
+<body>
+<div class="d-flex flex-row gap-4 align-items-center border-bottom mb-4">
+    <h1>r3ledstripctrl</h1>
+    <form action="/" method="get">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="connection" value="192.168.127.13"/>
+            <button class="btn btn-success" type="submit">Connect</button>
+        </div>
+    </form>
+    <button id="reconnect" class="btn btn-primary">Reconnect</button>
+</div>
+<div class="row align-items-start">
+    <div class="d-flex flex-row gap-2 col-8">
+        <div id="animations"></div>
+        <div id="strobo"></div>
+    </div>
+    <div class="d-flex flex-column col-4">
+        <h3>Log</h3>
+        <textarea id="ws-log" cols="100" rows="20" readonly class="form-control">
+    </textarea>
+    </div>
+</div>
+</body>
+
+<script src="/javascripts/cmdhandler.js"></script>
+<script src="/javascripts/ws.js"></script>
+<script src="/javascripts/bootstrap.min.js"></script>
+</html>
