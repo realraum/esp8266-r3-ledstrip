@@ -1,5 +1,8 @@
 class ReconnectingWebSocket {
     constructor(url, protocols) {
+        this.statusText = document.getElementById('status-text');
+        this.statusText.innerHTML = "Connecting...";
+
         this.url = url;
         this.protocols = protocols;
         this.reconnectInterval = 1000;
@@ -24,10 +27,12 @@ class ReconnectingWebSocket {
             return;
         }
         console.log(`Connecting to ${this.url}...`);
+        this.statusText.innerHTML = "Connecting...";
         this.ws = new WebSocket(this.url, this.protocols);
         this.ws.onopen = (event) => {
             this.onopen(event);
             this.toLog("WebSocket connected.");
+            this.statusText.innerHTML = "Connected";
             if (reconnectAttempt) {
                 this.reconnectInterval = 1000;
             }
@@ -35,6 +40,7 @@ class ReconnectingWebSocket {
         this.ws.onclose = (event) => {
             this.onclose(event);
             this.reconnect();
+            this.statusText.innerHTML = "Disconnected";
         };
         this.ws.onmessage = (event) => {
             this.onmessage(event);
@@ -45,6 +51,7 @@ class ReconnectingWebSocket {
             this.onerror(event);
             this.toLog(`WebSocket error. ${JSON.stringify(event)}`);
             this.reconnect();
+            this.statusText.innerHTML = "Disconnected";
         };
     }
 

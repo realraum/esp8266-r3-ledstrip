@@ -110,7 +110,14 @@ namespace wifi
                         return;
                     }
 
-                    leds::activateStrobo(doc["d"].as<uint16_t>());
+                    if (doc.containsKey("f") && doc["f"].is<bool>() && doc["f"].as<bool>())
+                    {
+                        leds::activateFancyStrobo(doc["d"].as<uint16_t>());
+                    }
+                    else
+                    {
+                        leds::activateStrobo(doc["d"].as<uint16_t>());
+                    }
                 }
                 else if (command == "c")
                 {
@@ -126,6 +133,17 @@ namespace wifi
 
                     leds::solidColor = CRGB(doc["r"].as<uint8_t>(), doc["g"].as<uint8_t>(), doc["b"].as<uint8_t>());
                     ws.textAll(getStatus().c_str());
+                }
+                else if (command == "p")
+                {
+                    if (!doc.containsKey("p") || !doc["p"].is<bool>())
+                    {
+                        if (DEBUG)
+                            Serial.println("No pause found");
+                        return;
+                    }
+                    const bool pause = doc["p"].as<bool>();
+                    leds::pause(pause);
                 }
                 else if (command == "_")
                 {
@@ -165,6 +183,7 @@ namespace wifi
         }
 
         Serial.printf("Connected to %s with IP %s\n", ssid, WiFi.localIP().toString().c_str());
+        Serial.printf("Starting webserver on http://%s/\n", WiFi.localIP().toString().c_str());
 
         ws.onEvent(onEvent);
         server.addHandler(&ws);

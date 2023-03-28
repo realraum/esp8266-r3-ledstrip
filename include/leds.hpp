@@ -20,8 +20,10 @@
 
 #define ANIMATION_VALUES(x) \
     x(Off) \
+    x(TotallyOff) \
     x(RainbowFade) \
     x(SinusRainbow) \
+    x(PingPong_May_Crash) \
     x(SolidColor)
 DECLARE_TYPESAFE_ENUM(Animation, uint8_t, ANIMATION_VALUES)
 
@@ -38,6 +40,10 @@ namespace leds
 
     void handle();
 
+    void activateFancyStrobo(uint16_t duration);
+
     void activateStrobo(uint16_t duration);
+
+    void pause(bool pause);
 
 } // namespace leds

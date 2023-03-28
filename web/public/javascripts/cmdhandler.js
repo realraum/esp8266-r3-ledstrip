@@ -18,6 +18,7 @@ class Cmdhandler {
     constructor(sendMethod) {
         this.sendMethod = sendMethod;
         this.stroboHoldInterval = null;
+        this.pauseHoldInterval = null;
         this.status = {
             animation: null,
             solidColor: null, // #RRGGBB
@@ -134,6 +135,13 @@ class Cmdhandler {
             e.preventDefault();
             this.sendStrobo(parseInt(input.value));
         };
+        const fancyButton = document.createElement('button');
+        fancyButton.classList.add('btn', 'btn-primary');
+        fancyButton.innerHTML = 'Fancy Strobo!!';
+        fancyButton.onclick = (e) => {
+            e.preventDefault();
+            this.sendStrobo(parseInt(input.value), true);
+        };
         const stroboHoldButton = document.createElement('button');
         stroboHoldButton.classList.add('btn', 'btn-primary');
         stroboHoldButton.innerHTML = 'Strobo Hold';
@@ -156,10 +164,80 @@ class Cmdhandler {
             e.preventDefault();
             e.stopPropagation();
         };
+        const pauseHoldButton = document.createElement('button');
+        pauseHoldButton.classList.add('btn', 'btn-primary');
+        pauseHoldButton.innerHTML = 'Pause';
+        pauseHoldButton.onmousedown = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.pressPause();
+        };
+        pauseHoldButton.onmouseup = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.releasePause();
+        };
+        pauseHoldButton.onmouseleave = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.releasePause();
+        };
+        pauseHoldButton.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+        const fancyHoldButton = document.createElement('button');
+        fancyHoldButton.classList.add('btn', 'btn-primary');
+        fancyHoldButton.innerHTML = 'Fancy Strobo Hold';
+        fancyHoldButton.onmousedown = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.pressStrobo(true);
+        };
+        fancyHoldButton.onmouseup = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.releaseStrobo(true);
+        };
+        fancyHoldButton.onmouseleave = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.releaseStrobo(true);
+        };
+        fancyHoldButton.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+        const pauseStutterButton = document.createElement('button');
+        pauseStutterButton.classList.add('btn', 'btn-primary');
+        pauseStutterButton.innerHTML = 'Pause Stutter';
+        pauseStutterButton.onmousedown = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.pressPauseStutter();
+        };
+        pauseStutterButton.onmouseup = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.releasePauseStutter();
+        };
+        pauseStutterButton.onmouseleave = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.releasePauseStutter();
+        };
+        pauseStutterButton.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
         inputGroup.appendChild(span);
         inputGroup.appendChild(input);
         inputGroup.appendChild(button);
+        inputGroup.appendChild(fancyButton);
         inputGroup.appendChild(stroboHoldButton);
+        inputGroup.appendChild(fancyHoldButton);
+        inputGroup.appendChild(pauseHoldButton);
+        inputGroup.appendChild(pauseStutterButton);
         form.appendChild(inputGroup);
         container.innerHTML = '';
         container.appendChild(form);
@@ -226,8 +304,8 @@ class Cmdhandler {
         this.sendJSON({c: 'l'});
     }
 
-    sendStrobo(duration) {
-        this.sendJSON({c: 's', d: duration});
+    sendStrobo(duration, fancy = false) {
+        this.sendJSON({c: 's', d: duration, f: fancy});
     }
 
     solidColor(hex) {
@@ -243,21 +321,63 @@ class Cmdhandler {
         this.sendJSON({c: 'c', r, g, b});
     }
 
-    pressStrobo() {
+    pressStrobo(fancy) {
         const func = () => {
-            this.sendStrobo(1000);
+            this.sendStrobo(1000, fancy);
         };
         this.stroboHoldInterval = setInterval(func, 500);
         func();
     }
 
-    releaseStrobo() {
+    releaseStrobo(fancy = false) {
+        if (!this.stroboHoldInterval) {
+            return;
+        }
         clearInterval(this.stroboHoldInterval);
         this.stroboHoldInterval = null;
-        this.sendStrobo(0);
+        this.sendStrobo(0, fancy);
     }
 
     getStatus() {
         this.sendJSON({c: '_'});
+    }
+
+    pressPause() {
+        const func = () => {
+            this.sendJSON({c: 'p', p: true});
+        };
+        this.pauseHoldInterval = setInterval(func, 500);
+        func();
+    }
+
+    releasePause() {
+        if (!this.pauseHoldInterval) {
+            return;
+        }
+        clearInterval(this.pauseHoldInterval);
+        this.pauseHoldInterval = null;
+        this.sendJSON({c: 'p', p: false});
+    }
+
+    pressPauseStutter() {
+        const func = () => {
+            this.sendJSON({c: 'p', p: true});
+
+            setTimeout(() => {
+                this.sendJSON({c: 'p', p: false});
+            }, 350);
+        };
+
+        this.pauseHoldInterval = setInterval(func, 400);
+        func();
+    }
+
+    releasePauseStutter() {
+        if (!this.pauseHoldInterval) {
+            return;
+        }
+        clearInterval(this.pauseHoldInterval);
+        this.pauseHoldInterval = null;
+        this.sendJSON({c: 'p', p: false});
     }
 }

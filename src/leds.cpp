@@ -14,7 +14,9 @@ namespace leds
 
     namespace
     {
+        uint32_t fancyStroboDuration{0};
         uint32_t stroboDuration{0};
+        uint16_t paused{0};
 
         void sinusRainbow()
         {
@@ -37,6 +39,46 @@ namespace leds
             }
             hue += 1;
         }
+
+        void showPingPong()
+        {
+            // ping pong with fade to black, avoid complicated math so its really fast. (Only CRGB, not CHSV)
+            static bool direction{true};
+            // only single color
+            static int16_t pos{0};
+            static uint8_t fillWidth = 5;
+            static uint8_t speed = 17;
+
+            if (direction)
+            {
+                pos += speed;
+                if (pos >= LED_COUNT)
+                {
+                    pos = LED_COUNT - 1;
+                    direction = false;
+                }
+            }
+            else
+            {
+                pos -= speed;
+                if (pos < 0)
+                {
+                    direction = true;
+                }
+            }
+
+            for (int i = 0; i < LED_COUNT; i++)
+            {
+                if (i >= pos - fillWidth && i <= pos + fillWidth)
+                {
+                    leds[i] = solidColor;
+                }
+                else
+                {
+                    leds[i].nscale8(75);
+                }
+            }
+        }
     } // namespace
 
     void begin()
@@ -50,12 +92,45 @@ namespace leds
 
     void handle()
     {
+        if (animation == Animation::TotallyOff)
+        {
+            std::fill(std::begin(leds), std::end(leds), CRGB::Black);
+            FastLED.show();
+            return;
+        }
+
+        if (paused > 0)
+        {
+            paused--;
+            fadeToBlackBy(&*std::begin(leds), leds.size(), 20);
+            FastLED.show();
+            return;
+        }
+
         if (stroboDuration > millis())
         {
             static uint32_t lastStroboChange{0};
             static uint8_t stroboDelay{0};
+            static bool on{false};
+
+            if (lastStroboChange + stroboDelay < millis())
+            {
+                lastStroboChange = millis();
+                stroboDelay = random(60, 90);
+                on = !on;
+            }
+
+            std::fill(std::begin(leds), std::end(leds), on ? CRGB::White : CRGB::Black);
+            FastLED.show();
+            return;
+        }
+
+        if (fancyStroboDuration > millis())
+        {
+            static uint32_t lastStroboChange{0};
+            static uint8_t stroboDelay{0};
             const auto segmentSize = leds.size() / 16;
-            //std::fill(std::begin(leds), std::end(leds), random() % 2 == 0 ? CRGB::White : CRGB::Black);
+            // std::fill(std::begin(leds), std::end(leds), random() % 2 == 0 ? CRGB::White : CRGB::Black);
             for (auto i = 0; i < segmentSize; i++)
             {
                 // fill segment with color
@@ -85,19 +160,42 @@ namespace leds
             rainbowFade();
             break;
         case Animation::Off:
-            std::fill(std::begin(leds), std::end(leds), CRGB::Black);
+            fadeToBlackBy(&*std::begin(leds), leds.size(), 40);
             break;
         case Animation::SolidColor:
             std::fill(std::begin(leds), std::end(leds), solidColor);
+            break;
+        case Animation::PingPong_May_Crash:
+            showPingPong();
             break;
         }
 
         FastLED.show();
     }
 
+    void activateFancyStrobo(uint16_t duration)
+    {
+        fancyStroboDuration = duration + millis();
+    }
+
     void activateStrobo(uint16_t duration)
     {
         stroboDuration = duration + millis();
+    }
+
+    void pause(bool pause)
+    {
+        if (pause)
+        {
+            if (paused < 10000)
+                paused += 10000;
+        }
+        else
+        {
+            paused = 0;
+        }
+
+        Serial.printf("Pause: %d\n", paused);
     }
 
 } // namespace leds
