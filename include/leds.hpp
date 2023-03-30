@@ -24,7 +24,8 @@
     x(RainbowFade) \
     x(SinusRainbow) \
     x(PingPong_May_Crash) \
-    x(SolidColor)
+    x(SolidColor) \
+    x(BetterRainbow)
 DECLARE_TYPESAFE_ENUM(Animation, uint8_t, ANIMATION_VALUES)
 
 namespace leds

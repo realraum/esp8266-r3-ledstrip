@@ -88,6 +88,27 @@ function getQueryVariable(variable) {
     return false;
 }
 
+function handleDeviceList() {
+    const deviceList = document.getElementById("device-list");
+    deviceList.innerHTML = "";
+
+    // fetch GET /devices
+    fetch('/devices').then(async (res) => {
+        if (!res.ok)
+            return;
+
+        const devices = await res.json();
+
+        for (let i = 0; i < devices.length; i++) {
+            const { name, ip } = devices[i];
+            const option = document.createElement("option");
+            option.value = ip;
+            option.innerHTML = name;
+            deviceList.appendChild(option);
+        }
+    });
+}
+
 window.addEventListener("load", () => {
     const log = document.getElementById("ws-log");
     log.innerHTML = "";
@@ -109,4 +130,9 @@ window.addEventListener("load", () => {
     reconnectButton.addEventListener("click", () => {
         ws.forceReconnect();
     });
+
+    setInterval(() => {
+        handleDeviceList();
+    }, 10000);
+    handleDeviceList();
 });

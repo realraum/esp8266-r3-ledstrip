@@ -168,6 +168,11 @@ namespace leds
         case Animation::PingPong_May_Crash:
             showPingPong();
             break;
+        case Animation::BetterRainbow:
+            static uint8_t gHue = 0;
+            EVERY_N_MILLISECONDS(20) gHue++;
+            fill_rainbow(&*std::begin(leds), leds.size(), gHue);
+            break;
         }
 
         FastLED.show();

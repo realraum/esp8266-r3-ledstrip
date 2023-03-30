@@ -6,6 +6,7 @@
 // arduino includes
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 
 // 3rdparty lib includes
 #include <ESPAsyncWebServer.h>
@@ -175,6 +176,11 @@ namespace wifi
     void begin()
     {
         enableWiFiAtBootTime();
+
+        String fqdn = "party-lights-";
+        fqdn += String(ESP.getChipId(), HEX);
+        WiFi.hostname(fqdn);
+
         Serial.printf("Connecting to %s (%s)\n", ssid, password);
         WiFi.begin(ssid, password);
         while (WiFi.status() != WL_CONNECTED)
@@ -189,6 +195,20 @@ namespace wifi
         server.addHandler(&ws);
 
         server.begin();
+
+        if (MDNS.begin(fqdn))
+        {
+            Serial.printf("mDNS responder started: %s.local\n", fqdn.c_str());
+        }
+        else
+        {
+            Serial.println("Error setting up mDNS responder!");
+        }
+
+        MDNS.addService("partylightws", "tcp", 80);
+        MDNS.addServiceTxt("partylightws", "tcp", "version", GIT_VERSION);
+        MDNS.addServiceTxt("partylightws", "tcp", "git_branch", GIT_BRANCH);
+        MDNS.addServiceTxt("partylightws", "tcp", "git_commit", GIT_COMMIT);
     }
 
     void handle()
@@ -201,6 +221,8 @@ namespace wifi
             last = millis();
             ws.textAll(F("{\"ping\":true}"));
         }
+
+        MDNS.update();
     }
 
 } // namespace wifi
