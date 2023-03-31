@@ -26,12 +26,12 @@ bool updateFromUrl(std::string url)
     ESPOta::updating = true;
     Serial.printf("Updating from %s\n", url.c_str());
 
-    ota_http.begin(ota_wifi_client, url.c_str());
-    int httpCode = ota_http.GET();
+    ESPOta::ota_http.begin(ESPOta::ota_wifi_client, url.c_str());
+    int httpCode = ESPOta::ota_http.GET();
 
     if (httpCode == HTTP_CODE_OK)
     {
-        const auto total_size = ota_http.getSize();
+        const auto total_size = ESPOta::ota_http.getSize();
 
         if (total_size == 0)
         {
@@ -44,10 +44,10 @@ bool updateFromUrl(std::string url)
         Serial.printf("Downloading %d bytes\n", total_size);
         uint8_t buff[128] = {0};
 
-        WiFiClient* stream = ota_http.getStreamPtr();
+        WiFiClient* stream = ESPOta::ota_http.getStreamPtr();
 
         Serial.println("Starting update");
-        while(ota_http.connected() && !Update.isFinished())
+        while(ESPOta::ota_http.connected() && !Update.isFinished())
         {
             size_t len = stream->readBytes(buff, sizeof(buff));
             Update.write(buff, len);
@@ -74,7 +74,7 @@ bool updateFromUrl(std::string url)
         return false;
     }
     
-    ota_http.end();
+    ESPOta::ota_http.end();
     return true;
 }
 
