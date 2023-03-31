@@ -18,6 +18,8 @@ void setup()
 
     leds::begin();
     wifi::begin();
+
+    Serial.println("Ready!");
 }
 
 void loop()

@@ -85,7 +85,7 @@ namespace leds
     {
         FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(&*std::begin(leds), leds.size()).setCorrection(TypicalLEDStrip);
         FastLED.setBrightness(255);
-        //FastLED.setMaxPowerInVoltsAndMilliamps(5, 4000);
+        FastLED.setMaxPowerInVoltsAndMilliamps(5, 4000);
         FastLED.clear();
         FastLED.show();
     }
