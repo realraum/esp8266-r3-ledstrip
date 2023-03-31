@@ -52,7 +52,7 @@ bool updateFromUrl(std::string url)
             size_t len = stream->readBytes(buff, sizeof(buff));
             Update.write(buff, len);
 
-            Serial.printf("Downloaded %d bytes\n", len);
+            Serial.printf("Progress: %d / %d\n", Update.progress(), total_size);
 
             delay(1);
         }
