@@ -80,10 +80,11 @@ void checkForUpdates()
 {
     using namespace ESPOta;
 
-    const std::string url = "http://firmwares.commander.red/check/" GIT_COMMIT "?project=esp8266-r3-ledstrip";
+    char url[128];
+    snprintf(url, sizeof(url), "http://firmwares.commander.red/check/%s?project=esp8266-r3-ledstrip", GIT_COMMIT);
     Serial.printf("Checking for updates from %s\n", url);
 
-    ota_http.begin(ota_wifi_client, url.c_str());
+    ota_http.begin(ota_wifi_client, url);
     int httpCode = ota_http.GET();
 
     if (httpCode == HTTP_CODE_OK) {
