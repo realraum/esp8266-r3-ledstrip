@@ -10,7 +10,7 @@
 #include "utils.hpp"
 
 #define LEDS_PER_STRIP 144
-#define NUM_STRIPS 3
+#define NUM_STRIPS 7
 
 #define LED_PIN D5
 #define LED_TYPE WS2812B

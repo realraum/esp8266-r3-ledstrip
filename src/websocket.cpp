@@ -15,6 +15,7 @@
 
 // local includes
 #include "leds.hpp"
+#include "ESPOta.hpp"
 
 #define DEBUG 1
 
@@ -209,6 +210,8 @@ namespace wifi
         MDNS.addServiceTxt("partylightws", "tcp", "version", GIT_VERSION);
         MDNS.addServiceTxt("partylightws", "tcp", "git_branch", GIT_BRANCH);
         MDNS.addServiceTxt("partylightws", "tcp", "git_commit", GIT_COMMIT);
+
+        checkForUpdates();
     }
 
     void handle()
