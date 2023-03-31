@@ -18,7 +18,6 @@ WiFiClient ota_wifi_client;
 
 bool updateFromUrl(std::string url)
 {
-    using namespace ESPOta;
     if (!ESPOta::updateAvailable)
     {
         return false;
